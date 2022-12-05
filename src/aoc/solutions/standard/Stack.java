@@ -42,6 +42,21 @@ public class Stack<T> {
         }
     }
 
+    public int size() {
+        return list.size();
+    }
+
+    public void reverse() {
+
+        if(size() <= 1) return;
+
+        List<T> temp = new ArrayList<>();
+        while(size() > 0) temp.add(pop());
+
+        pushAll(temp);
+
+    }
+
     public static <T> Stack<T> fromList(List<T> list) {
 
         Stack<T> stack = new Stack<>();
@@ -61,6 +76,13 @@ public class Stack<T> {
         }
 
         return stack;
+
+    }
+
+    @Override
+    public String toString() {
+
+        return "Stack" + list.toString();
 
     }
 
