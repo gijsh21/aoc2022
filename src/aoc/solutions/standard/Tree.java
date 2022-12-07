@@ -55,21 +55,38 @@ public class Tree<T> {
     }
 
     private T element;
+    private Tree<T> parent;
     private List<Tree<T>> children;
 
     public Tree() {
-        this(null, List.of());
+        this(null, null, List.of());
     }
 
     public Tree(T element) {
-        this(element, List.of());
+        this(element, null, List.of());
+    }
+
+    public Tree(Tree<T> parent) {
+        this(null, parent, List.of());
     }
 
     public Tree(List<Tree<T>> children) {
-        this(null, children);
+        this(null, null, children);
+    }
+
+    public Tree(T element, Tree<T> parent) {
+        this(element, parent, List.of());
     }
 
     public Tree(T element, List<Tree<T>> children) {
+        this(element, null, children);
+    }
+
+    public Tree(Tree<T> parent, List<Tree<T>> children) {
+        this(null, parent, children);
+    }
+
+    public Tree(T element, Tree<T> parent, List<Tree<T>> children) {
         this.element = element;
         this.children = new ArrayList<>(children);
     }
@@ -80,6 +97,14 @@ public class Tree<T> {
 
     public void setElement(T element) {
         this.element = element;
+    }
+
+    public Tree<T> getParent() {
+        return parent;
+    }
+
+    public void setParent(Tree<T> parent) {
+        this.parent = parent;
     }
 
     public List<Tree<T>> getChildren() {
