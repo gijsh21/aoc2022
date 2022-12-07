@@ -14,6 +14,7 @@ public class Util {
             File f = new File(path);
             sc = new Scanner(f);
         } catch(Exception e) {
+            e.printStackTrace();
             throw new IllegalArgumentException();
         }
 

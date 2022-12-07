@@ -31,18 +31,20 @@ public class D7P1 {
     private static class Directory extends FileSystemObject {
 
         UUID uuid;
+        List<FileSystemObject> children;
 
         Directory(String name) {
             super(name);
             uuid = UUID.randomUUID();
+            children = new ArrayList<>();
         }
 
     }
 
-    private static long calculateSizes(Tree<FileSystemObject> rootDirectory, HashMap<Directory, Long> map) {
+    private static long calculateSizes(FileSystemObject rootDirectory, HashMap<Directory, Long> map) {
 
-        if(!(rootDirectory.getElement() instanceof Directory)) {
-            if(rootDirectory.getElement() instanceof File f) {
+        if(!(rootDirectory instanceof Directory)) {
+            if(rootDirectory instanceof File f) {
                 return f.size;
             }
             return 0L;
@@ -50,18 +52,17 @@ public class D7P1 {
 
         long curr = 0L;
 
-        for(Tree<FileSystemObject> node : rootDirectory.getChildren()) {
+        for(FileSystemObject fObj : ((Directory) rootDirectory).children) {
 
-            FileSystemObject fObj = node.getElement();
             if(fObj instanceof File f) {
                 curr += f.size;
             } else if(fObj instanceof Directory d) {
-                curr += calculateSizes(node, map);
+                curr += calculateSizes(fObj, map);
             }
 
         }
 
-        map.put((Directory) rootDirectory.getElement(), curr);
+        map.put((Directory) rootDirectory, curr);
 
         return curr;
 
@@ -75,11 +76,11 @@ public class D7P1 {
         while(sc.hasNextLine()) {
             lines.add(sc.nextLine());
         }
+        lines.remove(0);
 
         sc.close();
 
-        Tree<FileSystemObject> root = new Tree<>();
-        root.setElement(new Directory("/"));
+        Directory root = new Directory("/");
         buildTree(lines, root);
 
         HashMap<Directory, Long> map = new HashMap<>();
@@ -96,9 +97,38 @@ public class D7P1 {
 
     }
 
-    private static void buildTree(List<String> lines, Tree<FileSystemObject> root) {
+    private static void buildTree(List<String> lines, Directory curr) {
 
-        for(String line : lines) {
+        for(int i = 0; i < lines.size(); i++) {
+
+            String line = lines.get(i);
+
+            if(line.startsWith("$ ls")) {
+
+                i++;
+                line = lines.get(i);
+                while(!line.startsWith("$")) {
+                    if(line.startsWith("dir")) {
+
+                    } else {
+                        
+                    }
+
+                    i++;
+                    line = lines.get(i);
+                }
+
+                i--;
+
+            } else if(line.startsWith("$ cd")) {
+
+                String goToDirectory = line.split(" ")[2];
+                Optional<FileSystemObject> oF = curr.children.stream()
+                        .filter(c -> c instanceof Directory && c.name.equals(goToDirectory)).findFirst();
+                if(oF.isEmpty()) throw new IllegalArgumentException();
+                curr = (Directory) oF.get();
+
+            }
 
         }
 
