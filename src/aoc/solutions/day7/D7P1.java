@@ -1,7 +1,6 @@
 package aoc.solutions.day7;
 
 import aoc.Util;
-import aoc.solutions.standard.Tree;
 
 import java.util.*;
 
@@ -10,9 +9,11 @@ public class D7P1 {
     private static abstract class FileSystemObject {
 
         String name;
+        FileSystemObject parent;
 
-        FileSystemObject(String name) {
+        FileSystemObject(String name, FileSystemObject parent) {
             this.name = name;
+            this.parent = parent;
         }
 
     }
@@ -21,8 +22,8 @@ public class D7P1 {
 
         long size;
 
-        File(String name, long size) {
-            super(name);
+        File(String name, long size, FileSystemObject parent) {
+            super(name, parent);
             this.size = size;
         }
 
@@ -33,8 +34,8 @@ public class D7P1 {
         UUID uuid;
         List<FileSystemObject> children;
 
-        Directory(String name) {
-            super(name);
+        Directory(String name, FileSystemObject parent) {
+            super(name, parent);
             uuid = UUID.randomUUID();
             children = new ArrayList<>();
         }
@@ -70,7 +71,7 @@ public class D7P1 {
 
     public static void run() {
 
-        Scanner sc = Util.readFile("src/aoc/solutions/day7/input.txt");
+        Scanner sc = Util.readFile("aoc2022/src/aoc/solutions/day7/input.txt");
 
         List<String> lines = new ArrayList<>();
         while(sc.hasNextLine()) {
@@ -80,7 +81,7 @@ public class D7P1 {
 
         sc.close();
 
-        Directory root = new Directory("/");
+        Directory root = new Directory("/", null);
         buildTree(lines, root);
 
         HashMap<Directory, Long> map = new HashMap<>();
@@ -105,27 +106,50 @@ public class D7P1 {
 
             if(line.startsWith("$ ls")) {
 
+                if(i >= lines.size() - 1) break;
+
                 i++;
                 line = lines.get(i);
                 while(!line.startsWith("$")) {
                     if(line.startsWith("dir")) {
-
+                        String[] split = line.split(" ");
+                        Optional<FileSystemObject> oF = curr.children.stream()
+                                .filter(c -> c instanceof Directory && c.name.equals(split[1]))
+                                .findFirst();
+                        if(oF.isEmpty()) {
+                            curr.children.add(new Directory(split[1], curr));
+                        }
                     } else {
-                        
+                        String[] split = line.split(" ");
+                        Optional<FileSystemObject> oF = curr.children.stream()
+                                .filter(c -> c instanceof File && c.name.equals(split[1]))
+                                .findFirst();
+                        if(oF.isEmpty()) {
+                            curr.children.add(new File(split[1], Long.parseLong(split[0]), curr));
+                        }
                     }
 
+                    if(i >= lines.size() - 1) break;
                     i++;
                     line = lines.get(i);
                 }
 
+                if(i >= lines.size() - 1) break;
                 i--;
 
             } else if(line.startsWith("$ cd")) {
 
                 String goToDirectory = line.split(" ")[2];
+
+                if(goToDirectory.equals("..")) {
+                    if(!(curr.parent instanceof Directory)) throw new IllegalArgumentException();
+                    curr = (Directory) curr.parent;
+                    continue;
+                }
+
                 Optional<FileSystemObject> oF = curr.children.stream()
                         .filter(c -> c instanceof Directory && c.name.equals(goToDirectory)).findFirst();
-                if(oF.isEmpty()) throw new IllegalArgumentException();
+                if(oF.isEmpty()) throw new IllegalArgumentException(goToDirectory);
                 curr = (Directory) oF.get();
 
             }
