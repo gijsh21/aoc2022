@@ -50,7 +50,7 @@ public class D9P1 {
 
     public static void run() {
 
-        Scanner sc = Util.readFile("aoc2022/src/aoc/solutions/day9/input.txt");
+        Scanner sc = Util.readFile("src/aoc/solutions/day9/input.txt");
 
         List<String> lines = new ArrayList<>();
         while(sc.hasNextLine()) {

@@ -25,7 +25,7 @@ public class D8P2 {
 
     public static void run() {
 
-        Scanner sc = Util.readFile("aoc2022/src/aoc/solutions/day8/input.txt");
+        Scanner sc = Util.readFile("src/aoc/solutions/day8/input.txt");
 
         List<List<Tree>> map = new ArrayList<>();
         int rowCount = 0;
