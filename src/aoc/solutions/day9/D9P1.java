@@ -41,6 +41,11 @@ public class D9P1 {
 
         }
 
+        @Override
+        public int hashCode() {
+            return Objects.hash(x, y);
+        }
+
     }
 
     public static void run() {
