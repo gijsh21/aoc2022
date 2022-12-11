@@ -1,12 +1,12 @@
 package aoc;
 
-import aoc.solutions.day11.*;
+import aoc.solutions.day12.*;
 
 public class Main {
 
     public static void main(String[] args) {
 
-        D11P1.run();
+        D12P1.run();
 
     }
 
