@@ -22,6 +22,32 @@ public class Util {
 
     }
 
+    public static List<String> lines(String path) {
+
+        Scanner sc = readFile(path);
+
+        List<String> res = new ArrayList<>();
+        while(sc.hasNextLine()) {
+            res.add(sc.nextLine());
+        }
+        sc.close();
+
+        return res;
+
+    }
+
+    public static List<String> inputLines(String packageName) {
+
+        return lines("src/aoc/solutions/" + packageName + "/input.txt");
+
+    }
+
+    public static List<String> testLines(String packageName) {
+
+        return lines("src/aoc/solutions/" + packageName + "/test.txt");
+
+    }
+
     public static List<Integer> getInts(String s) {
 
         List<Integer> result = new ArrayList<>();
