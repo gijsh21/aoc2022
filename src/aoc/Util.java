@@ -38,13 +38,13 @@ public class Util {
 
     public static List<String> inputLines(String packageName) {
 
-        return lines("src/aoc/solutions/" + packageName + "/input.txt");
+        return lines("aoc2022/src/aoc/solutions/" + packageName + "/input.txt");
 
     }
 
     public static List<String> testLines(String packageName) {
 
-        return lines("src/aoc/solutions/" + packageName + "/test.txt");
+        return lines("aoc2022/src/aoc/solutions/" + packageName + "/test.txt");
 
     }
 
