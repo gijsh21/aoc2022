@@ -51,7 +51,7 @@ public class D16P1 {
 
     public static void run() {
 
-        List<String> lines = Util.testLines("day16");
+        List<String> lines = Util.inputLines("day16");
 
         Map<String, Valve> valves = new HashMap<>();
         for(String line : lines) {
@@ -76,20 +76,55 @@ public class D16P1 {
             if(e.getValue().flowRate > 0L) nonZero.add(e.getKey());
         }
 
-        System.out.println(lz("AA", 0L, nonZero, distanceMatrix));
+        System.out.println(solve("AA", 0L, new ArrayList<>(), nonZero, distanceMatrix, valves));
 
     }
 
-    private static long lz(String start, long baseDst, List<String> options, Map<String, Map<String, Integer>> distanceMatrix) {
+    private static long calc(List<String> currentPath, Map<String, Map<String, Integer>> distanceMatrix, Map<String, Valve> valves) {
 
-        if(options.size() <= 0) return baseDst <= 30 ? 1L : 0L;
-        if(options.size() == 1) return baseDst + distanceMatrix.get(start).get(options.get(0)) <= 30 ? 1L : 0L;
+        long res = 0L;
+
+        long time = 1L;
+        long c = 0L;
+        String curr = currentPath.get(0);
+        for(int i = 1; i < currentPath.size(); i++) {
+            String next = currentPath.get(i);
+            long dst = distanceMatrix.get(curr).get(next);
+            if(time + dst >= 30) {
+                res += (31 - time) * c;
+                time = 31;
+                break;
+            } else {
+                res += (dst + 1) * c;
+                time += (dst + 1);
+                c += valves.get(next).flowRate;
+                curr = next;
+            }
+        }
+
+        if(time <= 30) {
+            res += (31 - time) * c;
+        }
+
+        return res;
+
+    }
+
+    private static long solve(String start, long baseDst, List<String> currentPath, List<String> options, Map<String, Map<String, Integer>> distanceMatrix, Map<String, Valve> valves) {
+
+        currentPath.add(start);
+        if(options.size() <= 0) return calc(currentPath, distanceMatrix, valves);
 
         long res = 0L;
         for(String option : options) {
             long currDst = baseDst + distanceMatrix.get(start).get(option);
-            if(currDst > 30) continue;
-            res += lz(option, currDst, listWithout(options, option), distanceMatrix);
+            if(currDst >= 30) {
+                long val = calc(currentPath, distanceMatrix, valves);
+                if(val > res) res = val;
+                continue;
+            }
+            long val = solve(option, currDst, new ArrayList<>(currentPath), listWithout(options, option), distanceMatrix, valves);
+            if(val > res) res = val;
         }
 
         return res;

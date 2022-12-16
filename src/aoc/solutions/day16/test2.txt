@@ -1,5 +1,5 @@
-Valve S has flow rate=0; tunnels lead to valves A, D
-Valve A has flow rate=0; tunnels lead to valves S, B
-Valve B has flow rate=40; tunnels lead to valves A, C
+Valve S has flow rate=0; tunnels lead to valves AA, D
+Valve AA has flow rate=0; tunnels lead to valves S, B
+Valve B has flow rate=40; tunnels lead to valves AA, C
 Valve C has flow rate=90; tunnel leads to valve B
 Valve D has flow rate=40; tunnel lead to valve S
