@@ -29,7 +29,7 @@ public class D15P2 {
 
     public static void run() {
 
-        List<String> lines = Util.testLines("day15");
+        List<String> lines = Util.inputLines("day15");
 
         List<SensorAndBeacon> snb = new ArrayList<>();
         for(String line : lines) {
@@ -42,7 +42,7 @@ public class D15P2 {
             snb.add(new SensorAndBeacon(sensorX, sensorY, beaconX, beaconY));
         }
 
-        System.out.println(solve(snb, 20L));
+        System.out.println(solve(snb, 4000000L));
 
     }
 
@@ -77,27 +77,30 @@ public class D15P2 {
                     .filter((r) -> r.right() >= 0L && r.left() <= maxCoord)
                     .toList();
 
-
-            Pair<Long, Long> currRange = distinctRanges.get(0);
             int ctr = 0;
             long curr = 0L;
-            while(curr <= maxCoord) {
+            List<Pair<Long, Long>> possibleRegions = new ArrayList<>();
+            for(Pair<Long, Long> currRange : distinctRanges) {
 
                 if(currRange.left() > curr) {
-
-                } else if(currRange.left() == curr) {
-
-                } else {
-
+                    possibleRegions.add(Pair.of(curr, currRange.left() - 1));
                 }
 
+                curr = currRange.right() + 1;
+
+            }
+            Pair<Long, Long> last = distinctRanges.get(distinctRanges.size() - 1);
+            if(last.right() < maxCoord) {
+                possibleRegions.add(Pair.of(last.right() + 1, maxCoord));
             }
 
-            List<Pair<Long, Long>> possibleRegions; //????
             for(Pair<Long, Long> possibleRegion : possibleRegions) {
                 Long low = possibleRegion.left();
                 while(low <= possibleRegion.right()) {
-
+                    if(!knownBeaconLocations.contains(Pair.of(low, currLine))) {
+                        bx = low;
+                        by = currLine;
+                    }
                     low++;
                 }
             }
