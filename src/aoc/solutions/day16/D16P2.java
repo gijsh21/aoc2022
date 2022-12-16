@@ -7,7 +7,7 @@ import java.util.*;
 
 public class D16P2 {
 
-    private static final Map<Pair<List<String>, List<String>>, Long> memory = new HashMap<>();
+    private static final Map<Pair<List<String>, List<String>>, Long> memory = new HashMap<>(500);
 
     private static class Valve {
 
@@ -78,23 +78,32 @@ public class D16P2 {
             if(e.getValue().flowRate > 0L) nonZero.add(e.getKey());
         }
 
-        /*long res = 0L;
-        List<Pair<List<String>, List<String>>> combinations = new ArrayList<>();
+        long res = 0L;
+        Pair<List<String>, List<String>> currBest = null;
+        List<Pair<List<String>, List<String>>> combinations = getCombinations(nonZero, 2);
         for(Pair<List<String>, List<String>> combination : combinations) {
-            long v1 = solve("AA", 0L, new ArrayList<>(), combination.left(), distanceMatrix, valves);
-            long v2 = solve("AA", 0L, new ArrayList<>(), combination.right(), distanceMatrix, valves);
-            if(v1 + v2 > res) res = v1 + v2;
-        }*/
-
-        long res = solve("AA", 0L, new ArrayList<>(), nonZero, distanceMatrix, valves);
+            List<String> v1Start = new ArrayList<>();
+            v1Start.add("AA");
+            List<String> v2Start = new ArrayList<>();
+            v2Start.add("AA");
+            long v1 = solve(0L, v1Start, combination.left(), distanceMatrix, valves);
+            long v2 = solve(0L, v2Start, combination.right(), distanceMatrix, valves);
+            if(v1 + v2 > res) {
+                res = v1 + v2;
+                currBest = combination;
+            }
+        }
 
         System.out.println(res);
+        System.out.println(currBest);
 
     }
 
-    private static List<Pair<List<String>, List<String>>> getCombinations(List<String> list) {
+    private static List<Pair<List<String>, List<String>>> getCombinations(List<String> list, int maxCombinationSize) {
 
-        List<Pair<List<String>, List<String>>> res = new ArrayList<>();
+        return getCombinationsInternal(list, new ArrayList<>(), 0, maxCombinationSize);
+
+        /*List<Pair<List<String>, List<String>>> res = new ArrayList<>();
 
         // 1 Combinations
         for(int i = 0; i < list.size(); i++) {
@@ -113,11 +122,57 @@ public class D16P2 {
                 left.add(list.get(j));
                 List<String> right = new ArrayList<>(list);
                 right.remove(i);
-                right.remove(j);
+                right.remove(j - 1);
                 res.add(Pair.of(left, right));
             }
         }
 
+        // 3 Combinations
+        for(int i = 0; i < list.size(); i++) {
+            for(int j = i + 1; j < list.size(); j++) {
+                for(int k = j + 1; k < list.size(); k++) {
+                    List<String> left = new ArrayList<>();
+                    left.add(list.get(i));
+                    left.add(list.get(j));
+                    left.add(list.get(k));
+                    List<String> right = new ArrayList<>(list);
+                    right.remove(i);
+                    right.remove(j - 1);
+                    right.remove(k - 2);
+                    res.add(Pair.of(left, right));
+                }
+            }
+        }
+
+        return res;*/
+
+    }
+
+    private static List<Pair<List<String>, List<String>>> getCombinationsInternal(List<String> list, List<String> currList, int currLevel, int maxLevel) {
+
+        if(maxLevel - currLevel < 1) throw new IllegalStateException();
+        if(maxLevel - currLevel == 1) {
+            List<Pair<List<String>, List<String>>> res = new ArrayList<>();
+            List<String> right = new ArrayList<>(list);
+            right.removeAll(currList);
+            for(String s : right) {
+                List<String> left = new ArrayList<>(currList);
+                left.add(s);
+                List<String> rightActual = new ArrayList<>(right);
+                rightActual.remove(s);
+                res.add(Pair.of(left, rightActual));
+            }
+            return res;
+        }
+
+        List<Pair<List<String>, List<String>>> res = new ArrayList<>();
+        List<String> right = new ArrayList<>(list);
+        right.removeAll(currList);
+        for(String s : right) {
+            List<String> left = new ArrayList<>(currList);
+            left.add(s);
+            res.addAll(getCombinationsInternal(list, left, currLevel + 1, maxLevel));
+        }
         return res;
 
     }
@@ -132,9 +187,9 @@ public class D16P2 {
         for(int i = 1; i < currentPath.size(); i++) {
             String next = currentPath.get(i);
             long dst = distanceMatrix.get(curr).get(next);
-            if(time + dst >= 30) {
-                res += (31 - time) * c;
-                time = 31;
+            if(time + dst >= 26) {
+                res += (27 - time) * c;
+                time = 27;
                 break;
             } else {
                 res += (dst + 1) * c;
@@ -144,55 +199,59 @@ public class D16P2 {
             }
         }
 
-        if(time <= 30) {
-            res += (31 - time) * c;
+        if(time <= 26) {
+            res += (27 - time) * c;
         }
 
         return res;
 
     }
 
-    private static long solve(String start, long baseDst, List<String> currentPath, List<String> options, Map<String, Map<String, Integer>> distanceMatrix, Map<String, Valve> valves) {
-
-        currentPath.add(start);
+    private static long solve(long baseDst, List<String> currentPath, List<String> options, Map<String, Map<String, Integer>> distanceMatrix, Map<String, Valve> valves) {
 
         if(options.size() <= 0) {
             Pair<List<String>, List<String>> memkey = Pair.of(currentPath, options);
-            if(memory.containsKey(memkey)) {
+            if(currentPath.size() < 3 && memory.containsKey(memkey)) {
                 return memory.get(memkey);
             }
             long res = calc(currentPath, distanceMatrix, valves);
-            memory.put(memkey, res);
+            if(currentPath.size() < 3) memory.put(memkey, res);
             return calc(currentPath, distanceMatrix, valves);
         }
 
         long res = 0L;
         for(String option : options) {
 
-            long currDst = baseDst + distanceMatrix.get(start).get(option);
+            currentPath.add(option);
+
+            long currDst = baseDst + distanceMatrix.get(currentPath.get(currentPath.size() - 2)).get(option);
 
             List<String> newOptions = listWithout(options, option);
             Pair<List<String>, List<String>> memkey = Pair.of(currentPath, newOptions);
 
-            if(currDst >= 30) {
-                if(memory.containsKey(memkey)) {
+            if(currDst >= 26) {
+                if(currentPath.size() < 3 && memory.containsKey(memkey)) {
                     long memo = memory.get(memkey);
                     if(memo > res) res = memo;
+                    currentPath.remove(currentPath.size() - 1);
                     continue;
                 }
                 long val = calc(currentPath, distanceMatrix, valves);
-                memory.put(memkey, val);
+                if(currentPath.size() < 3) memory.put(memkey, res);
                 if(val > res) res = val;
+                currentPath.remove(currentPath.size() - 1);
                 continue;
             }
-            if(memory.containsKey(memkey)) {
+            if(currentPath.size() < 3 && memory.containsKey(memkey)) {
                 long memo = memory.get(memkey);
                 if(memo > res) res = memo;
+                currentPath.remove(currentPath.size() - 1);
                 continue;
             }
-            long val = solve(option, currDst, new ArrayList<>(currentPath), listWithout(options, option), distanceMatrix, valves);
-            memory.put(memkey, val);
+            long val = solve(currDst, new ArrayList<>(currentPath), listWithout(options, option), distanceMatrix, valves);
+            if(currentPath.size() < 3) memory.put(memkey, res);
             if(val > res) res = val;
+            currentPath.remove(currentPath.size() - 1);
         }
 
         return res;
