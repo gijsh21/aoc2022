@@ -6,7 +6,7 @@ public class Main {
 
     public static void main(String[] args) {
 
-        D16P1.run();
+        D16P2.run();
 
     }
 
