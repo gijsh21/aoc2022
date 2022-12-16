@@ -48,6 +48,12 @@ public class Util {
 
     }
 
+    public static List<String> testLines(String packageName, int testFile) {
+
+        return lines("src/aoc/solutions/" + packageName + "/test" + testFile + ".txt");
+
+    }
+
     public static List<Integer> getInts(String s) {
 
         List<Integer> result = new ArrayList<>();
