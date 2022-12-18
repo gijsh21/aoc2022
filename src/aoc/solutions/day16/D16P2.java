@@ -80,7 +80,7 @@ public class D16P2 {
 
         long res = 0L;
         Pair<List<String>, List<String>> currBest = null;
-        List<Pair<List<String>, List<String>>> combinations = getCombinations(nonZero, 2);
+        List<Pair<List<String>, List<String>>> combinations = getCombinations(nonZero, nonZero.size() / 2);
         for(Pair<List<String>, List<String>> combination : combinations) {
             List<String> v1Start = new ArrayList<>();
             v1Start.add("AA");
